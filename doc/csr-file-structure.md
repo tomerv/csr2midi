@@ -151,7 +151,7 @@ The known commands are:
 
 0xf1 = ???
   This appears 12 times in a row at the start of the first track, with value 128.
-  It's user by csr2midi as the marker for the start of the recording area.
+  It's used by csr2midi as the marker for the start of the recording area.
 
 0xf2 = ???
   This appears twice at the start of the first track (after 0xf1), with value 66 and then with value 82.
