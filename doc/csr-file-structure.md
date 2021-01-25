@@ -102,13 +102,11 @@
       ???
 
     @ 0x278
-      24 bytes
-      start marker
-      b"\xf1\x80\x00" * 12
-
-    @ 0x29c
       variable length (3k-1 bytes for k commands)
       recording section
+
+      For PX-130, this block starts with a "start marker" of 36 bytes:
+      b"\xf1\x80\x00" * 12
 
     --- START "CMLF" BLOCK ---
 

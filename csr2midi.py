@@ -74,9 +74,12 @@ def convert(data) -> MidiFile:
         logging.warning(f"Invalid signature: {signature}")
 
     model = data[4:12]
-    logging.info(f"Model: {model.decode('utf-8')}")
-    if model != b"PX-130  ":
-        logging.warning(f"Unsupported model: {model}")
+    try:
+        logging.info(f"Model: {model.decode('utf-8')}")
+        if model != b"PX-130  ":
+            logging.warning(f"Unsupported model: {model}")
+    except UnicodeDecodeError:
+        logging.warning(f"Unknown model")
 
     if not data[0x0C:0x10] == data[0x118:0x11C]:
         logging.warning(f"Inconsistent file size (1)")
@@ -97,8 +100,11 @@ def convert(data) -> MidiFile:
 
     marker = b"\xf1\x80\x00" * 12
     pos = data.find(marker)
-    assert pos > 0, "Could not find marker"
-    tracks_data = data[pos + len(marker) :]
+    if pos > 0:
+        tracks_data = data[pos + len(marker) :]
+    else:
+        logging.warning("Could not find start marker, guessing where data starts")
+        tracks_data = data[0x278:]
 
     logging.info("")
 
@@ -228,15 +234,26 @@ def convert_track_data(tracks_data, midi_output, time_converter):
         elif command == 0xFF:  # delay
             logging.debug(f"Got delay command with value {value}")
             time_delta += 256 * value
-        elif command == 0xB1:  # damper pedal
-            logging.debug(f"Got damper pedal with value {value}")
+        elif command == 0xB1:  # damper pedal for PX-130
+            logging.debug(f"Got damper pedal ({command:#x}) with value {value}")
+            midi_output.damper_pedal(value, time_converter(time_delta))
+            time_delta = 0
+        elif command == 0xBC:  # damper pedal for PX-160
+            logging.debug(f"Got damper pedal ({command:#x}) with value {value}")
+            if value == 127:
+                value = 0
             midi_output.damper_pedal(value, time_converter(time_delta))
             time_delta = 0
         elif command < 0x80:  # note
             logging.debug(f"Got note {command:#x} with value {value}")
             if (command < 0x15) or (command > 0x6C):
                 logging.warning(f"Note {command:#x} is outside of valid piano range")
-            # velocity is already in the correct range
+            if value == 255:
+                value = 0
+            if value > 127:
+                logging.warning(f"Note value {value:#x} is outside of valid piano range")
+                value = 127
+            # velocity is now in the correct range
             midi_output.note(command, value, time_converter(time_delta))
             time_delta = 0
         else:

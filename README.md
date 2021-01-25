@@ -2,7 +2,7 @@
 
 csr2midi is a tool to convert the proprietary Casio CSR file format to MIDI file.
 
-It currently supports files copied from the PX-130 model.
+It currently supports files copied from the PX-130 and PX-160 models.
 If you're interested in support for more models, please open an issue.
 
 # Recorded data
@@ -31,10 +31,11 @@ You will need:
 
 # Tests
 
-All tests are from PX-130.
+All tests are from PX-130 except where noted otherwise.
 
 1. Chromatic scale over all the keyboard
 2. Single note for 20 seconds
 3. Two channels in sync
 4. Simple cadence
 5. Short segment from Chopin's Nocturne
+6. Example from PX-160
