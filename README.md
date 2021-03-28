@@ -5,6 +5,7 @@ csr2midi is a tool to convert the proprietary Casio CSR file format to MIDI file
 It currently supports files copied from the PX-130 and PX-160 models.
 If you're interested in support for more models, please open an issue.
 
+
 # Recorded data
 
 According to the PX-130 User's Guide, the following data is recorded.
@@ -22,12 +23,20 @@ Support in csr2midi is marked with `[x]` or `[ ]`.
 * [ ] Temperament and base note setting (Track 1 only)
 * [ ] Octave shift setting (Track 1 only)
 
+
 # Requirements
+
+## Windows (64-bit)
+
+You can download and run the packaged release, see [Releases page](https://github.com/tomerv/csr2midi/releases).
+
+## Running from source code
 
 You will need:
 
 * [Python 3.7](https://www.python.org/downloads/) or newer
 * [mido](https://pypi.org/project/mido/)
+
 
 # Tests
 

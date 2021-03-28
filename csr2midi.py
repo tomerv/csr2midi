@@ -24,15 +24,35 @@ def set_logging(verbose=False):
     logging.root.setLevel(logging.INFO)
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(
-        description="Convert Casio's digital piano CSR format to MIDI file."
-    )
-    parser.add_argument("csr_file", type=str, help="CSR file")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
+def parse_args(gui=True):
+    if gui:
+        import os
+        from gooey import Gooey, GooeyParser
 
-    args = parser.parse_args()
-    return args
+        scriptdir = os.path.dirname(os.path.realpath(__file__))
+        if hasattr(sys, "frozen"):
+            # frozen with pyinstaller
+            scriptdir = sys._MEIPASS
+
+        @Gooey(program_name="csr2midi", image_dir=scriptdir, suppress_gooey_flag=True)
+        def parse_args_internal():
+            parser = GooeyParser(
+                description="Convert Casio's digital piano CSR format to MIDI file."
+            )
+            parser.add_argument("csr_file", type=str, widget="FileChooser", help="CSR file")
+            parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
+            args = parser.parse_args()
+            return args
+    else:
+        def parse_args_internal():
+            parser = argparse.ArgumentParser(
+                description="Convert Casio's digital piano CSR format to MIDI file."
+            )
+            parser.add_argument("csr_file", type=str, help="CSR file")
+            parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
+            args = parser.parse_args()
+            return args
+    return parse_args_internal()
 
 
 # GM is the General Midi standard
@@ -260,9 +280,11 @@ def convert_track_data(tracks_data, midi_output, time_converter):
             logging.warning(f"Got unknown command {command:#x} with value {value}")
 
 
-if __name__ == "__main__":
+
+def main():
     set_logging()
-    args = parse_args()
+    gui = len(sys.argv) == 1
+    args = parse_args(gui)
     if args.verbose:
         logging.root.setLevel(logging.DEBUG)
     filename = args.csr_file
@@ -272,3 +294,7 @@ if __name__ == "__main__":
     midi_filename = filename[:-4] + ".mid"
     midi_file.save(midi_filename)
     logging.info(f"Saved to {midi_filename}")
+
+
+if __name__ == "__main__":
+    main()

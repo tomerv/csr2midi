@@ -3,3 +3,6 @@ __pycache__/
 # outputs of tests
 tests/*.mid
 
+# outputs of PyInstaller
+build/
+dist/
